@@ -5,7 +5,8 @@ import { SigninDto } from './dto/signinDto';
 import { ResetPasswordDemandDto } from './dto/resetPasswordDto';
 import { ResetPasswordConfirmation } from './dto/resetPasswordConfirmationDto';
 import { AuthGuard } from '@nestjs/passport';
-import { request } from 'http';
+import { Request } from 'express';
+import { DeleteAccountDto } from './dto/deleteAccountDto';
 
 @Controller('auth')
 export class AuthController {
@@ -33,8 +34,11 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete('delete-account')
-  deleteAccount(@Req() resquest : Request) {
-
-    return request.user;
+  deleteAccount(@Req() request : Request, @Body() deleteAccountDto: DeleteAccountDto) {
+    if (!request.user) {
+      throw new Error('User not found in request obed');
+    }
+    const userId = request.user["userId"];
+    return this.authservice.deleteAccount(userId, deleteAccountDto)
   }
 }

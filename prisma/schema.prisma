@@ -14,10 +14,34 @@ datasource db {
 }
 
 model user {
-  userId    Int      @id @default(autoincrement())
-  username  String   @db.VarChar(65)
-  email     String   @db.VarChar(255) @unique
-  password  String   @db.VarChar(255)
+  userId    Int       @id @default(autoincrement())
+  username  String    @db.VarChar(65)
+  email     String    @unique @db.VarChar(255)
+  password  String    @db.VarChar(255)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  posts     post[]    @relation("user_posts")
+  comment   comment[] @relation("user_comments")
+}
+
+model post {
+  postId    Int       @id @default(autoincrement())
+  title     String    @db.VarChar(255)
+  body      String    @db.Text
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    Int
+  user      user      @relation("user_posts", fields: [userId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
+  comment   comment[] @relation("post_comments")
+}
+
+model comment {
+  commentId Int      @id @default(autoincrement())
+  content   String   @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  postId    Int
+  post      post     @relation("post_comments", fields: [postId], references: [postId], onUpdate: Cascade, onDelete: Cascade)
+  userId    Int
+  user      user     @relation("user_comments", fields: [userId], references: [userId], onUpdate: Cascade, onDelete: Cascade)
 }
